@@ -1,2 +1,2 @@
-# workload_generator
+# workload-generator
 Generate Random Workloads For Kubernetes Tool
