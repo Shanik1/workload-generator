@@ -1,4 +1,4 @@
-module github.com/shanik1/workload_generator
+module github.com/shanik1/workload-generator
 
 go 1.17
 

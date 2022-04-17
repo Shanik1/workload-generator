@@ -6,7 +6,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/shanik1/workload_generator/pkg/fetcher"
+	"github.com/shanik1/workload-generator/pkg/fetcher"
 	"github.com/spf13/cobra"
 )
 

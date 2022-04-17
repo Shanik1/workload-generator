@@ -3,7 +3,7 @@ package fetcher
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/shanik1/workload_generator/pkg/fetcher/models"
+	"github.com/shanik1/workload-generator/pkg/fetcher/models"
 	"io/ioutil"
 	"net/http"
 )

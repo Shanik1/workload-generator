@@ -16,7 +16,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "workload_generator",
+	Use:   "workload-generator",
 	Short: "Tool to randomly generate k8s workloads",
 	Long:  `Tool to randomly generate k8s workloads`,
 	// Uncomment the following line if your bare application
@@ -40,7 +40,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.workload_generator.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.workload-generator.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -57,10 +57,10 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".workload_generator" (without extension).
+		// Search config in home directory with name ".workload-generator" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".workload_generator")
+		viper.SetConfigName(".workload-generator")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
