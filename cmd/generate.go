@@ -10,20 +10,7 @@ import (
 	"github.com/shanik1/workload-generator/pkg/fetcher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"k8s.io/client-go/util/homedir"
-	"path/filepath"
-	"sort"
 )
-
-var generateSettings struct {
-	WorkloadType   string
-	WorkloadsCount int
-	WorkloadName   string
-	KubeConfigPath string
-	Namespace      string
-}
-
-const defaultNamespace = "default"
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -35,16 +22,8 @@ var generateCmd = &cobra.Command{
 	},
 }
 
-var (
-	defaultKubeConfigPath = filepath.Join(homedir.HomeDir(), ".kube", "config")
-)
-
 func init() {
 	rootCmd.AddCommand(generateCmd)
-	rootCmd.PersistentFlags().StringVar(&generateSettings.WorkloadType, "workload-type", "Pod", "workload type to deploy (Pod, Deployment)")
-	rootCmd.PersistentFlags().StringVar(&generateSettings.WorkloadName, "workload-name", "deployed-workload", "workload prefix name to deploy")
-	rootCmd.PersistentFlags().StringVarP(&generateSettings.KubeConfigPath, "kubeconfig", "k", defaultKubeConfigPath, "cluster kubeconfig to apply workloads on")
-	rootCmd.PersistentFlags().StringVarP(&generateSettings.Namespace, "namespace", "n", defaultNamespace, "cluster namespace to apply workloads in")
 }
 
 func generateWorkloads() {
@@ -54,8 +33,8 @@ func generateWorkloads() {
 		fmt.Println("error fetching image")
 		return
 	}
-	workloadType := normalizeWorkloadType(generateSettings.WorkloadType)
-	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, generateSettings.WorkloadName, generateSettings.KubeConfigPath, generateSettings.Namespace)
+	workloadType := normalizeWorkloadType(workloadSettings.WorkloadType)
+	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
 	if err != nil {
 		logrus.Errorf("could not generate kubernetes client: %v", err)
 		return
@@ -67,13 +46,4 @@ func generateWorkloads() {
 			logrus.Errorf("failed deploying workload %v: %v", fullTag, err)
 		}
 	}
-}
-
-func normalizeWorkloadType(workloadType string) string {
-	supportedWorkloads := []string{"Deployment", "Pod"}
-	sort.Strings(supportedWorkloads)
-	if index := sort.SearchStrings(supportedWorkloads, workloadType); index > len(supportedWorkloads) || index < 0 {
-		return "Pod"
-	}
-	return workloadType
 }

@@ -83,3 +83,16 @@ func (deployer *WorkloadsDeployer) createPodResource(imageFullTag, workloadName 
 
 	return k8sPod
 }
+
+func (deployer *WorkloadsDeployer) DeleteWorkloads() error {
+	switch deployer.WorkloadType {
+	case "Pod":
+		return deployer.deletePodWorkloads()
+	}
+	return nil
+}
+
+func (deployer *WorkloadsDeployer) deletePodWorkloads() error {
+	label := fmt.Sprintf("app=%s", appLabel)
+	return deployer.k8sClient.CoreV1().Pods(deployer.Namespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{LabelSelector: label})
+}

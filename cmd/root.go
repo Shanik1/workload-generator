@@ -6,13 +6,30 @@ package cmd
 
 import (
 	"fmt"
+	"k8s.io/client-go/util/homedir"
 	"os"
+	"path/filepath"
+	"sort"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
+const defaultNamespace = "default"
+
 var cfgFile string
+
+var workloadSettings struct {
+	WorkloadType   string
+	WorkloadsCount int
+	WorkloadName   string
+	KubeConfigPath string
+	Namespace      string
+}
+
+var (
+	defaultKubeConfigPath = filepath.Join(homedir.HomeDir(), ".kube", "config")
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -35,12 +52,11 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.workload-generator.yaml)")
+	rootCmd.PersistentFlags().StringVar(&workloadSettings.WorkloadType, "workload-type", "Pod", "workload type to deploy (Pod, Deployment)")
+	rootCmd.PersistentFlags().StringVar(&workloadSettings.WorkloadName, "workload-name", "deployed-workload", "workload prefix name to deploy")
+	rootCmd.PersistentFlags().StringVarP(&workloadSettings.KubeConfigPath, "kubeconfig", "k", defaultKubeConfigPath, "cluster kubeconfig to apply workloads on")
+	rootCmd.PersistentFlags().StringVarP(&workloadSettings.Namespace, "namespace", "n", defaultNamespace, "cluster namespace to apply workloads in")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -69,4 +85,13 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+func normalizeWorkloadType(workloadType string) string {
+	supportedWorkloads := []string{"Deployment", "Pod"}
+	sort.Strings(supportedWorkloads)
+	if index := sort.SearchStrings(supportedWorkloads, workloadType); index > len(supportedWorkloads) || index < 0 {
+		return "Pod"
+	}
+	return workloadType
 }
