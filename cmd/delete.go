@@ -14,7 +14,7 @@ import (
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "Delete workloads created by workloads-generator",
+	Short: "Delete workloads created by workload-generator",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		deleteWorkloads()
@@ -33,7 +33,7 @@ func deleteWorkloads() {
 		return
 	}
 	if err := workloadDeployer.DeleteWorkloads(); err != nil {
-		logrus.Errorf("failed deleting workloads-generator workloads: %v", err)
+		logrus.Errorf("failed deleting workload-generator workloads: %v", err)
 	} else {
 		logrus.Info("workload-generator workloads deleted in namespace %s", workloadSettings.Namespace)
 	}
