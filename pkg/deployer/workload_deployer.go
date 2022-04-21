@@ -9,6 +9,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	// import auth plugin package to support gke
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 const (
