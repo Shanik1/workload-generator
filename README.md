@@ -16,6 +16,11 @@ Generate random kubernetes workloads:
 workload-generator generate --kubeconfig <kubeconfig path> --namespace <namespace>
 ```
 
+Use `--workload-type` to choose whether to deploy `Pod` or `Deployment`
+```bash
+workload-generator --workload-type Deployment generate --kubeconfig <kubeconfig path> --namespace <namespace>
+```
+
 Control the different repos to deploy, and whether to deploy all their tags by using `--count` and `--all-tags`
 ```bash 
 workload-generator generate --kubeconfig <kubeconfig path> --namespace <namespace> --count 3 --all-tags
