@@ -22,8 +22,16 @@ var generateCmd = &cobra.Command{
 	},
 }
 
+var generateSettings struct {
+	ReposCount int
+	AllTags    bool
+}
+
 func init() {
 	rootCmd.AddCommand(generateCmd)
+
+	generateCmd.PersistentFlags().IntVarP(&generateSettings.ReposCount, "count", "c", 10, "amount of image repos to deploy")
+	generateCmd.PersistentFlags().BoolVarP(&generateSettings.AllTags, "all-tags", "a", false, "should deploy all repo tags")
 }
 
 func generateWorkloads() {
@@ -34,16 +42,26 @@ func generateWorkloads() {
 		return
 	}
 	workloadType := normalizeWorkloadType(workloadSettings.WorkloadType)
-	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
+	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, generateSettings.ReposCount, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
 	if err != nil {
 		logrus.Errorf("could not generate kubernetes client: %v", err)
 		return
 	}
 
 	for _, image := range images {
-		fullTag := fmt.Sprintf("docker.io/%s:%s", image.RepositoryMetadata.Name, image.ImageTags.Results[0].Name)
-		if err := workloadDeployer.DeployWorkload(fullTag); err != nil {
-			logrus.Errorf("failed deploying workload %v: %v", fullTag, err)
+		if generateSettings.AllTags {
+			for _, tag := range image.ImageTags.Results {
+				deployWorkload(image.RepositoryMetadata.Name, tag.Name, workloadDeployer)
+			}
+		} else {
+			deployWorkload(image.RepositoryMetadata.Name, image.ImageTags.Results[0].Name, workloadDeployer)
 		}
+	}
+}
+
+func deployWorkload(repo string, tag string, workloadDeployer *deployer.WorkloadsDeployer) {
+	fullTag := fmt.Sprintf("docker.io/%s:%s", repo, tag)
+	if err := workloadDeployer.DeployWorkload(fullTag); err != nil {
+		logrus.Errorf("failed deploying workload %v: %v", fullTag, err)
 	}
 }

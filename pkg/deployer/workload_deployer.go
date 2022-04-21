@@ -18,17 +18,24 @@ const (
 type WorkloadsDeployer struct {
 	WorkloadType       string
 	WorkloadNamePrefix string
+	RepoAmount         int
 	Namespace          string
 	k8sClient          *kubernetes.Clientset
 }
 
-func NewWorkloadsDeployer(workloadType, workloadNamePrefix, kubeConfigPath, namespace string) (*WorkloadsDeployer, error) {
+func NewWorkloadsDeployer(workloadType string, workloadNamePrefix string, repoAmount int, kubeConfigPath string, namespace string) (*WorkloadsDeployer, error) {
 	k8sClient, err := GetKubernetesClient(kubeConfigPath)
 	if err != nil {
 		return nil, err
 	}
-	return &WorkloadsDeployer{WorkloadType: workloadType, WorkloadNamePrefix: workloadNamePrefix,
-		Namespace: namespace, k8sClient: k8sClient}, nil
+
+	return &WorkloadsDeployer{
+		WorkloadType:       workloadType,
+		WorkloadNamePrefix: workloadNamePrefix,
+		RepoAmount: repoAmount,
+		Namespace: namespace,
+		k8sClient: k8sClient,
+	}, nil
 }
 
 func GetKubernetesClient(kubeConfigPath string) (*kubernetes.Clientset, error) {

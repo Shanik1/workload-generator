@@ -21,7 +21,6 @@ var cfgFile string
 
 var workloadSettings struct {
 	WorkloadType   string
-	WorkloadsCount int
 	WorkloadName   string
 	KubeConfigPath string
 	Namespace      string
