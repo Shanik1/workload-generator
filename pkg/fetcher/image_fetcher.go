@@ -13,6 +13,7 @@ const (
 	imageContentMetadataURL = "https://hub.docker.com/api/content/v1/products/images/%s"
 	repositoryMetadataURL   = "https://hub.docker.com/v2/repositories/library/%s/"
 	imageTagsURL            = "https://hub.docker.com/v2/repositories/library/%s/tags/"
+	imageTagURL             = "https://hub.docker.com/v2/repositories/library/%s/tags/%s"
 )
 
 type ImageFetcher struct {
@@ -87,7 +88,6 @@ func (imageFetcher *ImageFetcher) generateImageMetadata(imageSummary models.Imag
 		return nil, err
 	}
 	imageMetadata.ImageTags = imageTags
-
 	return imageMetadata, nil
 }
 
@@ -117,4 +117,11 @@ func (imageFetcher *ImageFetcher) FetchImageTags(imageSummary models.ImageSummar
 	var imageTags models.ImageTagList
 	err := imageFetcher.getAndBindResponse(url, &imageTags)
 	return imageTags, err
+}
+
+func (imageFetcher *ImageFetcher) FetchImageTag(repo, tag string) (models.ImageTag, error) {
+	url := fmt.Sprintf(imageTagURL, repo, tag)
+	var imageTag models.ImageTag
+	err := imageFetcher.getAndBindResponse(url, &imageTag)
+	return imageTag, err
 }
