@@ -27,7 +27,7 @@ func init() {
 
 func deleteWorkloads() {
 	workloadType := normalizeWorkloadType(workloadSettings.WorkloadType)
-	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, 0, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
+	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
 	if err != nil {
 		logrus.Errorf("could not generate kubernetes client: %v", err)
 		return
@@ -35,6 +35,6 @@ func deleteWorkloads() {
 	if err := workloadDeployer.DeleteWorkloads(); err != nil {
 		logrus.Errorf("failed deleting workload-generator workloads: %v", err)
 	} else {
-		logrus.Info("workload-generator workloads deleted in namespace %s", workloadSettings.Namespace)
+		logrus.Infof("workloads deleted in namespace %s", workloadSettings.Namespace)
 	}
 }

@@ -36,13 +36,13 @@ func init() {
 
 func generateWorkloads() {
 	workloadType := normalizeWorkloadType(workloadSettings.WorkloadType)
-	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, generateSettings.ReposCount, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
+	workloadDeployer, err := deployer.NewWorkloadsDeployer(workloadType, workloadSettings.WorkloadName, workloadSettings.KubeConfigPath, workloadSettings.Namespace)
 	if err != nil {
 		logrus.Errorf("could not generate kubernetes client: %v", err)
 		return
 	}
 
-	imageFetcher := fetcher.NewImageFetcher()
+	imageFetcher := fetcher.NewImageFetcher(generateSettings.ReposCount)
 	images, err := imageFetcher.FetchRandomImages()
 	if err != nil {
 		fmt.Println("error fetching image")

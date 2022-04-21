@@ -17,10 +17,11 @@ const (
 )
 
 type ImageFetcher struct {
+	repoCount int
 }
 
-func NewImageFetcher() *ImageFetcher {
-	return &ImageFetcher{}
+func NewImageFetcher(repoCount int) *ImageFetcher {
+	return &ImageFetcher{repoCount: repoCount}
 }
 
 func (imageFetcher *ImageFetcher) FetchRandomImages() ([]*models.ImageMetadata, error) {
@@ -30,7 +31,7 @@ func (imageFetcher *ImageFetcher) FetchRandomImages() ([]*models.ImageMetadata, 
 	}
 
 	images := make([]*models.ImageMetadata, 0)
-	for len(images) < 10 {
+	for len(images) < imageFetcher.repoCount {
 		for _, image := range fetchedImages.Summaries {
 			imageMetadata, err := imageFetcher.generateImageMetadata(image)
 			if err != nil {
@@ -48,7 +49,7 @@ func (imageFetcher *ImageFetcher) FetchRandomImages() ([]*models.ImageMetadata, 
 		}
 	}
 
-	return images, err
+	return images[0:imageFetcher.repoCount], err
 }
 
 func (imageFetcher *ImageFetcher) getAndBindResponse(url string, result interface{}) error {
