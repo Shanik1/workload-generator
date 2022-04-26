@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"github.com/shanik1/workload-generator/pkg/fetcher/models"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 )
 
 const (
-	listImagesURL           = "https://hub.docker.com/api/content/v1/products/search?architecture=arm,arm64&image_filter=official&operating_system=linux&page_size=25&q=&type=image"
+	listImagesURL           = "https://hub.docker.com/api/content/v1/products/search?architecture=arm,arm64&image_filter=official&operating_system=linux&page_size=10&q=&type=image&page=%v"
 	imageContentMetadataURL = "https://hub.docker.com/api/content/v1/products/images/%s"
 	repositoryMetadataURL   = "https://hub.docker.com/v2/repositories/library/%s/"
 	imageTagsURL            = "https://hub.docker.com/v2/repositories/library/%s/tags/"
 	imageTagURL             = "https://hub.docker.com/v2/repositories/library/%s/tags/%s"
+	pageCount               = 14
 )
 
 type ImageFetcher struct {
@@ -25,13 +27,14 @@ func NewImageFetcher(repoCount int) *ImageFetcher {
 }
 
 func (imageFetcher *ImageFetcher) FetchRandomImages() ([]*models.ImageMetadata, error) {
-	fetchedImages, err := imageFetcher.ListImages(listImagesURL)
+	url := fmt.Sprintf(listImagesURL, rand.Intn(pageCount))
+	fetchedImages, err := imageFetcher.ListImages(url)
 	if err != nil {
 		return nil, err
 	}
 
-	images := make([]*models.ImageMetadata, 0)
-	for len(images) < imageFetcher.repoCount {
+	images := make([]*models.ImageMetadata, 0, imageFetcher.repoCount)
+	for len(images) < imageFetcher.repoCount && err == nil {
 		for _, image := range fetchedImages.Summaries {
 			imageMetadata, err := imageFetcher.generateImageMetadata(image)
 			if err != nil {
@@ -39,14 +42,18 @@ func (imageFetcher *ImageFetcher) FetchRandomImages() ([]*models.ImageMetadata, 
 			}
 			if imageMetadata != nil {
 				images = append(images, imageMetadata)
+				if len(images) == imageFetcher.repoCount {
+					return images, nil
+				}
 			}
 		}
+
 		if fetchedImages.Next != "" {
-			fetchedImages, err = imageFetcher.ListImages(fetchedImages.Next)
-			if err != nil {
-				return images, err
-			}
+			url = fetchedImages.Next
+		} else {
+			url = fmt.Sprintf(listImagesURL, rand.Intn(pageCount))
 		}
+		fetchedImages, err = imageFetcher.ListImages(url)
 	}
 
 	return images[0:imageFetcher.repoCount], err

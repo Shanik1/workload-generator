@@ -10,6 +10,7 @@ import (
 	"github.com/shanik1/workload-generator/pkg/fetcher"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"math/rand"
 )
 
 // generateCmd represents the generate command
@@ -55,7 +56,8 @@ func generateWorkloads() {
 				deployWorkload(image.RepositoryMetadata.Name, tag.Name, workloadDeployer)
 			}
 		} else {
-			deployWorkload(image.RepositoryMetadata.Name, image.ImageTags.Results[0].Name, workloadDeployer)
+			imageTag := image.ImageTags.Results[rand.Intn(len(image.ImageTags.Results))]
+			deployWorkload(image.RepositoryMetadata.Name, imageTag.Name, workloadDeployer)
 		}
 	}
 }
